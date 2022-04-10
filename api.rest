@@ -1,0 +1,25 @@
+@hostname = http://localhost
+@port = 8081
+@suffix = /api/v1
+@url = {{hostname}}:{{port}}{{suffix}}
+@contentType = application/json
+
+### Save Location
+POST {{url}}/location/save
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "lat": 1.0,
+  "lng": 1.0
+}
+
+### Search Location
+POST {{url}}/location/search
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "lat": 1.0,
+  "lng": 1.0
+}
