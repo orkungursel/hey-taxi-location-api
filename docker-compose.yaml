@@ -1,0 +1,20 @@
+version: "3.5"
+services:
+  redis:
+    container_name: redis
+    image: redis:latest
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-volume:/data
+    networks:
+      - hey-taxi-network
+
+volumes:
+  redis-volume:
+
+networks:
+  hey-taxi-network:
+    external:
+      name: hey-taxi-network
+    driver: bridge
