@@ -1,0 +1,133 @@
+basePath: /api/v1
+definitions:
+  Driver:
+    properties:
+      email:
+        type: string
+      name:
+        type: string
+      nickname:
+        type: string
+      picture:
+        type: string
+      user_id:
+        type: string
+    type: object
+  HTTPError:
+    properties:
+      message: {}
+    type: object
+  LocationResponse:
+    properties:
+      dist:
+        type: number
+      driver:
+        $ref: '#/definitions/Driver'
+      lat:
+        type: number
+      lng:
+        type: number
+    type: object
+  SaveLocationRequest:
+    properties:
+      lat:
+        maximum: 90
+        minimum: -90
+        type: number
+      lng:
+        maximum: 180
+        minimum: -180
+        type: number
+    required:
+    - lat
+    - lng
+    type: object
+  SearchLocationRequest:
+    properties:
+      lat:
+        type: number
+      lng:
+        type: number
+    required:
+    - lat
+    - lng
+    type: object
+info:
+  contact: {}
+  title: Hey Taxi Location API
+  version: "1.0"
+paths:
+  /location/save:
+    post:
+      consumes:
+      - application/json
+      description: Saves the driver location
+      parameters:
+      - description: Payload
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/SaveLocationRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/LocationResponse'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/HTTPError'
+      security:
+      - BearerAuth: []
+      summary: Save Location
+      tags:
+      - Location Service
+  /location/search:
+    post:
+      consumes:
+      - application/json
+      description: Searches for driver locations
+      parameters:
+      - description: Payload
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/SearchLocationRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/LocationResponse'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/HTTPError'
+      security:
+      - BearerAuth: []
+      summary: Search
+      tags:
+      - Location Service
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
