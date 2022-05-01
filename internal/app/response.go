@@ -9,8 +9,8 @@ type HTTPError struct {
 } // @name HTTPError
 
 type LocationResponse struct {
-	Driver model.Driver `json:"driver"`
-	Lat    float64      `json:"lat"`
-	Lng    float64      `json:"lng"`
-	Dist   float64      `json:"dist"`
+	Vehicle model.Vehicle `json:"vehicle"`
+	Lat     float64       `json:"lat"`
+	Lng     float64       `json:"lng"`
+	Dist    float64       `json:"dist"`
 } // @name LocationResponse
