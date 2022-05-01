@@ -8,10 +8,10 @@ import (
 	"github.com/orkungursel/hey-taxi-location-api/internal/api/http"
 	"github.com/orkungursel/hey-taxi-location-api/internal/infrastructure"
 	"github.com/orkungursel/hey-taxi-location-api/internal/server"
-	userService "github.com/orkungursel/hey-taxi-location-api/proto"
+	"github.com/orkungursel/hey-taxi-location-api/proto"
 )
 
-func Api(s *server.Server, redisClient *redis.Client, userServiceGrpcClient userService.UserServiceClient) error {
+func Api(s *server.Server, redisClient *redis.Client, vehicleServiceGrpc proto.VehicleServiceClient) error {
 	if s == nil {
 		return errors.New("server is nil")
 	}
@@ -33,15 +33,16 @@ func Api(s *server.Server, redisClient *redis.Client, userServiceGrpcClient user
 	}
 	logger.Info("connected to Redis")
 
-	if userServiceGrpcClient == nil {
-		return errors.New("user service client is nil")
+	if vehicleServiceGrpc == nil {
+		return errors.New("vehicle service client is nil")
 	}
 
-	userService := infrastructure.NewUserService(c, logger, userServiceGrpcClient)
 	tokenService := infrastructure.NewTokenService(c, logger)
+	vehicleRepo := infrastructure.NewVehicleRepository(redisClient, logger)
+	vehicleService := infrastructure.NewVehicleService(logger, vehicleServiceGrpc, vehicleRepo)
 
 	locationRepo := infrastructure.NewLocationRepository(redisClient, logger)
-	locationService := infrastructure.NewLocationService(locationRepo, logger, userService)
+	locationService := infrastructure.NewLocationService(locationRepo, logger, vehicleService)
 
 	ctrl := http.NewController(c, logger, locationService, tokenService)
 	if err := s.RegisterHttpApi("/location", ctrl); err != nil {
