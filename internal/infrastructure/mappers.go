@@ -7,16 +7,16 @@ import (
 
 func MapRedisGeoLocationToDomain(g redis.GeoLocation) *model.Location {
 	return &model.Location{
-		Driver: g.Name,
-		Lat:    g.Latitude,
-		Lng:    g.Longitude,
-		Dist:   g.Dist,
+		VehicleId: g.Name,
+		Lat:       g.Latitude,
+		Lng:       g.Longitude,
+		Dist:      g.Dist,
 	}
 }
 
 func MapLocationToRedisGeoLocation(l model.Location) *redis.GeoLocation {
 	return &redis.GeoLocation{
-		Name:      l.Driver,
+		Name:      l.VehicleId,
 		Longitude: l.Lng,
 		Latitude:  l.Lat,
 		Dist:      l.Dist,
