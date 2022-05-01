@@ -7,33 +7,27 @@ import (
 	"github.com/alicebob/miniredis/v2"
 	"github.com/go-redis/redis/v8"
 	"github.com/orkungursel/hey-taxi-location-api/internal/domain/model"
-	. "github.com/orkungursel/hey-taxi-location-api/pkg/logger/mock"
+	"github.com/orkungursel/hey-taxi-location-api/pkg/logger/mock"
 )
 
-func newRedisClientMock() (r *redis.Client) {
+func SetupLocationRepositoryMocks() (*LocationRepository, *redis.Client) {
 	mr, err := miniredis.Run()
 	if err != nil {
 		panic(err)
 	}
 
-	r = redis.NewClient(&redis.Options{
+	r := redis.NewClient(&redis.Options{
 		Addr: mr.Addr(),
 	})
 
-	return
-}
-
-func SetupRepositoryMock() (repo *LocationRepository, redisClient *redis.Client) {
-	logger := NewLoggerMock()
-	redisClient = newRedisClientMock()
-	repo = NewLocationRepository(redisClient, logger)
-	return
+	repo := NewLocationRepository(r, mock.NewLoggerMock())
+	return repo, r
 }
 
 func TestLocationRepository_Save(t *testing.T) {
 	t.Parallel()
 
-	repo, _ := SetupRepositoryMock()
+	repo, _ := SetupLocationRepositoryMocks()
 
 	type args struct {
 		in model.Location
@@ -50,9 +44,9 @@ func TestLocationRepository_Save(t *testing.T) {
 			r:    repo,
 			args: args{
 				in: model.Location{
-					Driver: "driver",
-					Lat:    1.0,
-					Lng:    1.0,
+					VehicleId: "driver",
+					Lat:       1.0,
+					Lng:       1.0,
 				},
 			},
 			wantErr: false,
@@ -62,9 +56,9 @@ func TestLocationRepository_Save(t *testing.T) {
 			r:    repo,
 			args: args{
 				in: model.Location{
-					Driver: "driver-2",
-					Lat:    0,
-					Lng:    0,
+					VehicleId: "driver-2",
+					Lat:       0,
+					Lng:       0,
 				},
 			},
 			wantErr: false,
@@ -94,10 +88,10 @@ func TestLocationRepository_Save(t *testing.T) {
 func TestLocationRepository_Search(t *testing.T) {
 	t.Parallel()
 
-	repo, redis := SetupRepositoryMock()
+	repo, redis := SetupLocationRepositoryMocks()
 
-	d1 := model.Location{Driver: "driver1", Lat: 1.0, Lng: 1.0}
-	d2 := model.Location{Driver: "driver2", Lat: 20.0, Lng: 20.0}
+	d1 := model.Location{VehicleId: "driver1", Lat: 1.0, Lng: 1.0}
+	d2 := model.Location{VehicleId: "driver2", Lat: 20.0, Lng: 20.0}
 
 	_ = repo.Save(context.Background(), d1)
 	_ = repo.Save(context.Background(), d2)

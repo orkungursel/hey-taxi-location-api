@@ -14,20 +14,24 @@ const (
 )
 
 var (
-	ErrEmptyUserId = errors.New("user id is empty")
+	ErrEmptyUserId          = errors.New("user id is empty")
+	ErrVehicleService       = errors.New("vehicle service error")
+	ErrVehicleNotFound      = errors.New("vehicle not found")
+	ErrVehicleOwnerNotMatch = errors.New("vehicle owner not match")
 )
 
 type LocationService struct {
-	repo   app.LocationRepository
-	logger logger.ILogger
-	user   app.UserService
+	repo           app.LocationRepository
+	vehicleService app.VehicleService
+	logger         logger.ILogger
 }
 
-func NewLocationService(repo app.LocationRepository, logger logger.ILogger, us app.UserService) *LocationService {
+func NewLocationService(repo app.LocationRepository, logger logger.ILogger,
+	vehicleService app.VehicleService) *LocationService {
 	return &LocationService{
-		repo:   repo,
-		logger: logger,
-		user:   us,
+		repo:           repo,
+		logger:         logger,
+		vehicleService: vehicleService,
 	}
 }
 
@@ -37,10 +41,29 @@ func (s *LocationService) SaveLocation(ctx context.Context, userId string, in ap
 		return ErrEmptyUserId
 	}
 
+	if err := app.Validate(in); err != nil {
+		return err
+	}
+
+	vehicle, err := s.vehicleService.GetVehicleById(ctx, in.VehicleId)
+	if err != nil {
+		s.logger.Error(ctx, "vehicle service error", err)
+		return ErrVehicleService
+	}
+
+	if vehicle == nil {
+		return ErrVehicleNotFound
+	}
+
+	if vehicle.Driver.Id != userId {
+		s.logger.Info(ctx, "vehicle owner not match", vehicle, userId)
+		return ErrVehicleOwnerNotMatch
+	}
+
 	l := model.Location{
-		Driver: userId,
-		Lat:    in.Lat,
-		Lng:    in.Lng,
+		VehicleId: in.VehicleId,
+		Lat:       in.Lat,
+		Lng:       in.Lng,
 	}
 
 	if err := app.Validate(l); err != nil {
@@ -59,32 +82,22 @@ func (s *LocationService) SearchLocations(ctx context.Context, q app.SearchLocat
 
 	data := make([]app.LocationResponse, 0)
 
-	userIds := make([]string, 0)
 	for _, v := range res {
-		userIds = append(userIds, v.Driver)
-	}
+		vehicle, err := s.vehicleService.GetVehicleById(ctx, v.VehicleId)
+		if err != nil {
+			s.logger.Error(ctx, "vehicle service error", err)
+			return nil, ErrVehicleService
+		}
 
-	if len(userIds) == 0 {
-		return data, nil
-	}
-
-	users, err := s.user.GetUsersByIds(ctx, userIds)
-	if err != nil {
-		return nil, err
-	}
-
-	for _, v := range res {
-		u, ok := users[v.Driver]
-		if !ok {
-			s.logger.Warnf(`User "%s" not found`, v.Driver)
+		if vehicle == nil {
 			continue
 		}
 
 		data = append(data, app.LocationResponse{
-			Driver: *MapUserToDriver(u),
-			Lat:    v.Lat,
-			Lng:    v.Lng,
-			Dist:   v.Dist,
+			Vehicle: *vehicle,
+			Lat:     v.Lat,
+			Lng:     v.Lng,
+			Dist:    v.Dist,
 		})
 	}
 
