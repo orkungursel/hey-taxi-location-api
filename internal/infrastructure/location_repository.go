@@ -18,14 +18,12 @@ type LocationRepository struct {
 	db     *redis.Client
 	logger logger.ILogger
 	dbKey  string
-	ctx    context.Context
 }
 
 func NewLocationRepository(db *redis.Client, logger logger.ILogger) *LocationRepository {
 	return &LocationRepository{
 		db:     db,
 		logger: logger,
-		ctx:    context.Background(),
 		dbKey:  dbKey,
 	}
 }
@@ -33,16 +31,13 @@ func NewLocationRepository(db *redis.Client, logger logger.ILogger) *LocationRep
 // Save saves the location of the driver to redis database
 func (r *LocationRepository) Save(ctx context.Context, in model.Location) error {
 	d := MapLocationToRedisGeoLocation(in)
-	return r.db.GeoAdd(r.ctx, r.dbKey, d).Err()
+	return r.db.GeoAdd(ctx, r.dbKey, d).Err()
 }
 
 // Search searches for drivers in redis database
-func (r *LocationRepository) Search(
-	ctx context.Context,
-	lat, lng, radius float64,
-	unit string,
-	limit int,
-) ([]model.Location, error) {
+func (r *LocationRepository) Search(ctx context.Context, lat, lng, radius float64,
+	unit string, limit int) ([]model.Location, error) {
+
 	if limit == 0 || limit > maxLimit {
 		limit = defaultLimit
 	}
@@ -55,7 +50,7 @@ func (r *LocationRepository) Search(
 		Count:     limit,
 	}
 
-	d, err := r.db.GeoRadius(r.ctx, r.dbKey, lat, lng, q).Result()
+	d, err := r.db.GeoRadius(ctx, r.dbKey, lat, lng, q).Result()
 
 	if err != nil {
 		return nil, err
