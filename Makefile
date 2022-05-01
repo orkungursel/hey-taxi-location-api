@@ -18,7 +18,7 @@ build:
 lint:
 	golangci-lint run
 
-protoc-gen: protoc-gen-user-details
+protoc-gen: protoc-gen-user-details protoc-gen-user-details-mock protoc-gen-vehicle-service protoc-gen-vehicle-service-mock
 
 protoc-gen-user-details:
 	protoc \
@@ -28,6 +28,21 @@ protoc-gen-user-details:
 	--go-grpc_out=proto \
 	--go-grpc_opt=paths=source_relative \
 	user_details.proto
+
+protoc-gen-user-details-mock:
+	mockgen -source=proto/vehicle_service_grpc.pb.go -destination=proto/mock/vehicle_service.grpc_pb_mock.go -package=mock
+
+protoc-gen-vehicle-service:
+	protoc \
+	--proto_path=proto \
+	--go_out=proto \
+	--go_opt=paths=source_relative \
+	--go-grpc_out=proto \
+	--go-grpc_opt=paths=source_relative \
+	vehicle_service.proto
+
+protoc-gen-vehicle-service-mock:
+	mockgen -source=proto/vehicle_service_grpc.pb.go -destination=proto/mock/vehicle_service.grpc_pb_mock.go -package=mock
 
 swagger: swagger-fmt
 	swag init -g ./cmd/main.go -pd --parseDepth 2
