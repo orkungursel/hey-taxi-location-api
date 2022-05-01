@@ -1,5 +1,5 @@
 @hostname = http://localhost
-@port = 8081
+@port = 8083
 @suffix = /api/v1
 @url = {{hostname}}:{{port}}{{suffix}}
 @contentType = application/json
@@ -10,6 +10,7 @@ Content-Type: {{contentType}}
 Authorization: Bearer {{token}}
 
 {
+  "vehicle_id": "ZaKN9vRnBo",
   "lat": 1.0,
   "lng": 1.0
 }
@@ -20,6 +21,6 @@ Content-Type: {{contentType}}
 Authorization: Bearer {{token}}
 
 {
-  "lat": 1.0,
+  "lat": 1.1,
   "lng": 1.0
 }
