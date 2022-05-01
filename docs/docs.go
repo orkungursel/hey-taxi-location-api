@@ -166,6 +166,9 @@ const docTemplate = `{
                 },
                 "lng": {
                     "type": "number"
+                },
+                "vehicle": {
+                    "$ref": "#/definitions/Vehicle"
                 }
             }
         },
@@ -200,6 +203,32 @@ const docTemplate = `{
                 },
                 "lng": {
                     "type": "number"
+                }
+            }
+        },
+        "Vehicle": {
+            "type": "object",
+            "properties": {
+                "class": {
+                    "type": "string"
+                },
+                "driver": {
+                    "$ref": "#/definitions/Driver"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "plate": {
+                    "type": "string"
+                },
+                "seats": {
+                    "type": "integer"
+                },
+                "type": {
+                    "type": "string"
+                },
+                "vehicle_id": {
+                    "type": "string"
                 }
             }
         }
