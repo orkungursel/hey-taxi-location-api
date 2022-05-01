@@ -27,9 +27,9 @@ type (
 			MaxRetries   int    `default:"3"`
 		}
 
-		AuthGrpc struct {
+		VehicleService struct {
 			Host string `default:"localhost"`
-			Port string `default:"50051"`
+			Port string `default:"50052"`
 		}
 
 		Jwt struct {
