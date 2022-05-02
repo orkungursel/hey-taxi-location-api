@@ -8,11 +8,12 @@ type (
 
 		Server struct {
 			Http struct {
-				Host            string `default:""`
-				Port            string `default:"8080"`
-				BodyLimit       string `default:"1M"`
-				RequestTimeout  int    `default:"60"`
-				ShutdownTimeout int    `default:"5"`
+				Host            string   `default:""`
+				Port            string   `default:"8080"`
+				BodyLimit       string   `default:"1M"`
+				RequestTimeout  int      `default:"60"`
+				ShutdownTimeout int      `default:"5"`
+				CorsOrigins     []string `default:"*"`
 			}
 		}
 

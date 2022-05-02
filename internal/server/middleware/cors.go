@@ -11,9 +11,7 @@ import (
 func CORS(c *config.Config) echo.MiddlewareFunc {
 	return emw.CORSWithConfig(emw.CORSConfig{
 		AllowCredentials: true,
-		AllowOrigins: []string{
-			"https://*.unfig.com",
-		},
+		AllowOrigins:     c.Server.Http.CorsOrigins,
 		AllowHeaders: []string{
 			echo.HeaderOrigin,
 			echo.HeaderContentType,
